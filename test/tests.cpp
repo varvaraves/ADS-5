@@ -3,8 +3,8 @@
 #include <string>
 #include "gtest/gtest.h"
 
-std::string infx2pstfx(std::string);
-int eval(std::string);
+std::string infx2pstfx(const std::string&);
+int eval(const std::string&);
 
 TEST(lab3, test1_1) {
     const std::string in = "(2+2)*2";
