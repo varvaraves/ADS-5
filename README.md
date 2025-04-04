@@ -38,11 +38,11 @@ TStack<int, 100> stack2;
 
 ```C++
 // преобразование выражение в постфиксную форму
-std::string infx2pstfx(std::string inf) {
+std::string infx2pstfx(const std::string& inf) {
 
 }
 // вычисление выражения, записанного в постфиксной форме
-int eval(std::string post) {
+int eval(const std::string& post) {
 
 }
 
