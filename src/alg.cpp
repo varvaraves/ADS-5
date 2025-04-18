@@ -1,85 +1,91 @@
 // Copyright 2025 NNTU-CS
 #include <string>
 #include <map>
+#include <cctype>
 #include "tstack.h"
 
+int GetPriority(char op) {
+  if (op == '+' || op == '-') return 1;
+  if (op == '*' || op == '/') return 2;
+  return 0;
+}
+
 std::string infx2pstfx(const std::string& inf) {
-  std::string postfix;
+  std::string result;
   TStack<char, 100> stack;
-  std::map<char, int> precedence = {
-    {'+', 1},
-    {'-', 1},
-    {'*', 2},
-    {'/', 2}
-  };
 
   for (size_t i = 0; i < inf.size(); ++i) {
     char c = inf[i];
-    
-    if (isdigit(c)) {
-      while (i < inf.size() && isdigit(inf[i])) {
-        postfix += inf[i++];
+    if (std::isdigit(c)) {
+      while (i < inf.size() && std::isdigit(inf[i])) {
+        result += inf[i];
+        ++i;
       }
-      postfix += ' ';
-      i--;
+      result += ' ';
+      --i;
     } else if (c == '(') {
-      stack.Push(c);
+      stack.push(c);
     } else if (c == ')') {
-      while (!stack.IsEmpty() && stack.Top() != '(') {
-        postfix += stack.Pop();
-        postfix += ' ';
+      while (!stack.isEmpty() && stack.top() != '(') {
+        result += stack.pop();
+        result += ' ';
       }
-      stack.Pop();
-    } else if (precedence.count(c)) {
-      while (!stack.IsEmpty() && stack.Top() != '(' && 
-             precedence[stack.Top()] >= precedence[c]) {
-        postfix += stack.Pop();
-        postfix += ' ';
+      if (!stack.isEmpty()) stack.pop();
+    } else if (c == '+' || c == '-' || c == '*' || c == '/') {
+      while (!stack.isEmpty() && GetPriority(stack.top()) >= GetPriority(c)) {
+        result += stack.pop();
+        result += ' ';
       }
-      stack.Push(c);
+      stack.push(c);
     }
   }
 
-  while (!stack.IsEmpty()) {
-    postfix += stack.Pop();
-    postfix += ' ';
+  while (!stack.isEmpty()) {
+    result += stack.pop();
+    result += ' ';
   }
 
-  if (!postfix.empty() && postfix.back() == ' ') {
-    postfix.pop_back();
-  }
-
-  return postfix;
+  if (!result.empty() && result.back() == ' ') result.pop_back();
+  return result;
 }
 
 int eval(const std::string& post) {
   TStack<int, 100> stack;
-  
-  for (size_t i = 0; i < post.size(); ++i) {
-    char c = post[i];
-    
-    if (isdigit(c)) {
+  size_t i = 0;
+
+  while (i < post.size()) {
+    if (std::isdigit(post[i])) {
       int num = 0;
-      while (i < post.size() && isdigit(post[i])) {
+      while (i < post.size() && std::isdigit(post[i])) {
         num = num * 10 + (post[i] - '0');
-        i++;
+        ++i;
       }
-      stack.Push(num);
-      i--;
-    } else if (c == ' ') {
-      continue;
+      stack.push(num);
+    } else if (post[i] == '+' || post[i] == '-' ||
+               post[i] == '*' || post[i] == '/') {
+      int b = stack.pop();
+      int a = stack.pop();
+      int res = 0;
+      switch (post[i]) {
+        case '+':
+          res = a + b;
+          break;
+        case '-':
+          res = a - b;
+          break;
+        case '*':
+          res = a * b;
+          break;
+        case '/':
+          res = a / b;
+          break;
+      }
+      stack.push(res);
+      ++i;
     } else {
-      int right = stack.Pop();
-      int left = stack.Pop();
-      
-      switch (c) {
-        case '+': stack.Push(left + right); break;
-        case '-': stack.Push(left - right); break;
-        case '*': stack.Push(left * right); break;
-        case '/': stack.Push(left / right); break;
-      }
+      ++i;
     }
   }
-  
-  return stack.Pop();
+
+  return stack.pop();
 }
