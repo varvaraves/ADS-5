@@ -24,24 +24,24 @@ std::string infx2pstfx(const std::string& inf) {
       result += ' ';
       --i;
     } else if (c == '(') {
-      stack.push(c);
+      stack.Push(c);
     } else if (c == ')') {
-      while (!stack.isEmpty() && stack.top() != '(') {
-        result += stack.pop();
+      while (!stack.IsEmpty() && stack.Top() != '(') {
+        result += stack.Pop();
         result += ' ';
       }
-      if (!stack.isEmpty()) stack.pop();
+      if (!stack.IsEmpty()) stack.Pop();
     } else if (c == '+' || c == '-' || c == '*' || c == '/') {
-      while (!stack.isEmpty() && GetPriority(stack.top()) >= GetPriority(c)) {
-        result += stack.pop();
+      while (!stack.IsEmpty() && GetPriority(stack.Top()) >= GetPriority(c)) {
+        result += stack.Pop();
         result += ' ';
       }
-      stack.push(c);
+      stack.Push(c);
     }
   }
 
-  while (!stack.isEmpty()) {
-    result += stack.pop();
+  while (!stack.IsEmpty()) {
+    result += stack.Pop();
     result += ' ';
   }
 
@@ -60,32 +60,24 @@ int eval(const std::string& post) {
         num = num * 10 + (post[i] - '0');
         ++i;
       }
-      stack.push(num);
+      stack.Push(num);
     } else if (post[i] == '+' || post[i] == '-' ||
                post[i] == '*' || post[i] == '/') {
-      int b = stack.pop();
-      int a = stack.pop();
+      int b = stack.Pop();
+      int a = stack.Pop();
       int res = 0;
       switch (post[i]) {
-        case '+':
-          res = a + b;
-          break;
-        case '-':
-          res = a - b;
-          break;
-        case '*':
-          res = a * b;
-          break;
-        case '/':
-          res = a / b;
-          break;
+        case '+': res = a + b; break;
+        case '-': res = a - b; break;
+        case '*': res = a * b; break;
+        case '/': res = a / b; break;
       }
-      stack.push(res);
+      stack.Push(res);
       ++i;
     } else {
       ++i;
     }
   }
 
-  return stack.pop();
+  return stack.Pop();
 }
